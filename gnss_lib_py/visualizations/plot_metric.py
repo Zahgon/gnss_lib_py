@@ -54,83 +54,7 @@ def plot_metric(navdata, *args, groupby=None, avg_y=False, fig=None,
          Figure of plotted metrics.
 
     """
-
-    if not isinstance(navdata,NavData):
-        raise TypeError("first arg to plot_metrics must be a "\
-                          + "NavData object.")
-
-    x_metric, y_metric = _parse_metric_args(navdata, *args)
-
-    if groupby is not None:
-        navdata.in_rows(groupby)
-    if not isinstance(prefix, str):
-        raise TypeError("Prefix must be a string.")
-
-    # create a new figure if none provided
-    fig, axes = _get_new_fig(fig)
-
-    if x_metric is None:
-        x_data = None
-        xlabel = "INDEX"
-        if title is None:
-            title = get_label({y_metric:y_metric})
-    else:
-        if title is None:
-            title = get_label({y_metric:y_metric}) + " vs. " \
-                  + get_label({x_metric:x_metric})
-        xlabel = get_label({x_metric:x_metric})
-
-    if groupby is not None:
-        all_groups = np.unique(navdata[groupby])
-        if groupby == "gnss_id":
-            all_groups = sort_gnss_ids(all_groups)
-        for group in all_groups:
-            subset = navdata.where(groupby,group)
-            y_data = np.atleast_1d(subset[y_metric])
-            if x_metric is None:
-                x_data = range(len(y_data))
-            else:
-                x_data = np.atleast_1d(subset[x_metric])
-            if avg_y:
-                # average y values for each x
-                x_unique = sorted(np.unique(x_data))
-                y_avg = []
-                for x_val in x_unique:
-                    x_idxs = np.argwhere(x_data==x_val)
-                    y_avg.append(np.mean(y_data[x_idxs]))
-                x_data = x_unique
-                y_data = y_avg
-                # change name
-                group = str(group) + "_avg"
-            axes.plot(x_data, y_data,
-                      label=get_label({groupby:group}),
-                      markeredgecolor = markeredgecolor,
-                      markeredgewidth = markeredgewidth,
-                      **kwargs)
-    else:
-        y_data = np.atleast_1d(navdata[y_metric])
-        if x_metric is None:
-            x_data = range(len(y_data))
-        else:
-            x_data = np.atleast_1d(navdata[x_metric])
-        axes.plot(x_data, y_data,
-                  markeredgecolor = markeredgecolor,
-                  markeredgewidth = markeredgewidth,
-                  **kwargs)
-
-    handles, _ = axes.get_legend_handles_labels()
-    if len(handles) > 0:
-        plt.legend(loc="upper left", bbox_to_anchor=(1.05, 1),
-                   title=get_label({groupby:groupby}))
-
-    plt.title(title)
-    plt.xlabel(xlabel)
-    plt.ylabel(get_label({y_metric:y_metric}))
-    fig.set_layout_engine(layout="tight")
-
-    if save: # pragma: no cover
-        save_figure(fig, title, prefix, fname)
-    return fig
+    pass
 
 def plot_metric_by_constellation(navdata, *args, save=False, prefix="",
                                  fname=None, **kwargs):
@@ -168,57 +92,7 @@ def plot_metric_by_constellation(navdata, *args, save=False, prefix="",
          List of figures of plotted metrics.
 
     """
-
-    if not isinstance(navdata,NavData):
-        raise TypeError("first arg to plot_metric_by_constellation "\
-                          + "must be a NavData object.")
-
-    x_metric, y_metric = _parse_metric_args(navdata, *args)
-
-    if not isinstance(prefix, str):
-        raise TypeError("Prefix must be a string.")
-    if "gnss_id" not in navdata.rows:
-        raise KeyError("gnss_id row missing," \
-                     + " try using" \
-                     + " the plot_metric() function call instead")
-
-    figs = []
-    for constellation in sort_gnss_ids(np.unique(navdata["gnss_id"])):
-        const_subset = navdata.where("gnss_id",constellation)
-
-        if "signal_type" in const_subset.rows:
-            for signal in np.unique(const_subset["signal_type"]):
-                title = get_label({"gnss_id":constellation,"signal_type":signal})
-                signal_subset = const_subset.where("signal_type",signal)
-                if "sv_id" in signal_subset.rows:
-                    # group by sv_id
-                    fig = plot_metric(signal_subset,x_metric,y_metric,
-                                      groupby="sv_id", title=title,
-                                      save=save, prefix=prefix,
-                                      fname=fname, **kwargs)
-                    figs.append(fig)
-                else:
-                    fig = plot_metric(signal_subset,x_metric,y_metric,
-                                      title=title, save=save,
-                                      prefix=prefix, fname=fname,
-                                      **kwargs)
-                    figs.append(fig)
-        else:
-            title = get_label({"gnss_id":constellation})
-            if "sv_id" in const_subset.rows:
-                # group by sv_id
-                fig = plot_metric(const_subset,x_metric,y_metric,
-                                  groupby="sv_id", title=title,
-                                  save=save, prefix=prefix, fname=fname,
-                                  **kwargs)
-                figs.append(fig)
-            else:
-                fig = plot_metric(const_subset,x_metric,y_metric,
-                                  title=title, save=save, prefix=prefix,
-                                  fname=fname, **kwargs)
-                figs.append(fig)
-
-    return figs
+    pass
 
 def _parse_metric_args(navdata, *args):
     """Parses arguments and raises error if metrics are nonnumeric.
@@ -241,22 +115,7 @@ def _parse_metric_args(navdata, *args):
         y_metric is plotted on the y axis.
 
     """
-
-    # parse arguments
-    if len(args)==1:
-        x_metric = None
-        y_metric = args[0]
-    elif len(args)==2:
-        x_metric = args[0]
-        y_metric = args[1]
-    else:
-        raise ValueError("Cannot plot more than one pair of x-y values")
-    for metric in [x_metric, y_metric]:
-        if metric is not None and navdata.is_str(metric):
-            raise KeyError(metric + " is a non-numeric row." \
-                         + "Unable to plot with plot_metric().")
-
-    return x_metric, y_metric
+    pass
 
 def _get_new_fig(fig=None):
     """Creates new default figure and axes.
@@ -274,16 +133,4 @@ def _get_new_fig(fig=None):
         Default NavData axes.
 
     """
-
-    if fig is None:
-        fig = plt.figure()
-        axes = plt.gca()
-    elif len(fig.get_axes()) == 0:
-        axes = plt.gca()
-    else:
-        axes = fig.get_axes()[0]
-
-    axes.ticklabel_format(useOffset=False)
-    fig.autofmt_xdate() # rotate x labels automatically
-
-    return fig, axes
+    pass

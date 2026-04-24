@@ -298,16 +298,4 @@ def _write_plotly(figure, fname, width, height): # pragma: no cover
         Figure height in pixels.
 
     """
-
-    while True:
-        try:
-            figure.write_image(fname,
-                               width = width,
-                               height = height,
-                               )
-            break
-        except ValueError as error:
-            figure.layout.mapbox.zoom -= 1
-            if figure.layout.mapbox.zoom < 1:
-                print(error)
-                break
+    pass

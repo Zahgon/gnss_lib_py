@@ -53,17 +53,7 @@ def close_figures(figs=None):
         List of figures or single matplotlib figure object.
 
     """
-
-    if figs is None:
-        plt.close('all')
-    elif isinstance(figs,plt.Figure):
-        plt.close(figs)
-    elif isinstance(figs, list):
-        for fig in figs:
-            if isinstance(fig, plt.Figure):
-                plt.close(fig)
-    else:
-        raise TypeError("Must be either a single figure or list of figures.")
+    pass
 
 def get_label(inputs):
     """Return label/title name from input dictionary.

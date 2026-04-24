@@ -48,33 +48,7 @@ class SmartLocRaw(NavData):
         """TU Chemnitz raw specific postprocessing
 
         """
-
-        # convert gnss_id to lowercase as per standard naming convention
-        self["gnss_id"] = np.array([x.lower() for x in self["gnss_id"]],
-                                    dtype=object)
-
-        # create gps_millis row from gps week and time of week
-        self["gps_millis"] = [tow_to_gps_millis(*x) for x in
-                              zip(self["gps_week"],self["gps_tow"])]
-
-        # convert SmartLoc East counterclockwise heading into
-        # North clockwise heading standard
-        self["heading_rx_gt_rad"] = np.pi/2. - self["heading_rx_gt_rad"]
-        self["heading_rx_gt_rad"] = wrap_0_to_2pi(self["heading_rx_gt_rad"])
-
-        # remove duplicate rows
-        self.remove(rows=["GPSWeek [weeks]",
-                          "GPSSecondsOfWeek [s]"
-                          ],inplace=True)
-
-        # change all NLOS columns to be integers
-        nlos_idx = 'NLOS (0 == no, 1 == yes, # == No Information)'
-        nlos_new = 'NLOS (0 == no, 1 == yes, 2 == No Information)'
-        if self.is_str(nlos_idx) and '#' in np.unique(self[nlos_idx]):
-            # replace '#' values with 2 and convert to ints
-            self[nlos_idx] = np.where(self[nlos_idx]=='#',
-                                      '2',self[nlos_idx]).astype(int)
-        self.rename({nlos_idx:nlos_new},inplace=True)
+        pass
 
     @staticmethod
     def _row_map():
@@ -85,28 +59,7 @@ class SmartLocRaw(NavData):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-
-        row_map = {'GPS week number (week) [weeks]' : 'gps_week',
-                   'Measurement time of week (rcvTow) [s]' : 'gps_tow',
-                   'Pseudorange measurement (prMes) [m]' : 'raw_pr_m',
-                   'GNSS identifier (gnssId) []' : 'gnss_id',
-                   'Satellite identifier (svId) []' : 'sv_id',
-                   'Carrier-to-noise density ratio (cno) [dbHz]' : 'cn0_dbhz',
-                   'Estimated pseudorange measurement standard deviation (prStdev) [m]' : 'raw_pr_sigma_m',
-                   'Doppler measurement (doMes) [Hz]' : 'doppler_hz',
-                   'Estimated Doppler measurement standard deviation (doStdev) [Hz]' \
-                   : 'doppler_sigma_hz',
-                   'Longitude (GT Lon) [deg]' : 'lon_rx_gt_deg',
-                   'Longitude Cov (GT Lon) [deg]' : 'lon_sigma_rx_gt_deg',
-                   'Latitude (GT Lat) [deg]' : 'lat_rx_gt_deg',
-                   'Latitude Cov (GT Lat) [deg]' : 'lat_sigma_rx_gt_deg',
-                   'Height above ellipsoid (GT Height) [m]' : 'alt_rx_gt_m',
-                   'Height above ellipsoid Cov (GT Height) [m]' : 'alt_sigma_rx_gt_m',
-                   'Heading (0° = East, counterclockwise) - (GT Heading) [rad]' : 'heading_rx_gt_rad',
-                   'Velocity (GT Velocity) [m/s]' : 'v_rx_gt_mps',
-                   'Acceleration (GT Acceleration) [ms^2]' : 'a_rx_gt_mps2',
-                   }
-        return row_map
+        pass
 
 def remove_nlos(smartloc_raw):
     """Remove NLOS and 'no information' measurements from SmartLoc.

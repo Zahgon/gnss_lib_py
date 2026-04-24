@@ -250,33 +250,7 @@ def tow_to_unix_millis(gps_weeks, tows):
 
 
     """
-    #NOTE: Don't need to remove leapseconds here because they're
-    # removed in tow_to_datetime
-
-    if np.issubdtype(type(gps_weeks), np.integer):
-        gps_weeks = [gps_weeks]
-    if np.issubdtype(type(tows), np.integer) \
-        or np.issubdtype(type(tows), float):
-        tows = [tows]
-    if isinstance(gps_weeks,np.ndarray) \
-        and len(np.atleast_1d(gps_weeks)) == 1:
-        gps_weeks = [gps_weeks.item()]
-    if isinstance(tows,np.ndarray) \
-        and len(np.atleast_1d(tows)) == 1:
-        tows = [tows.item()]
-
-    unix_millis = []
-
-    for t_idx, gps_week in enumerate(gps_weeks):
-        tow = tows[t_idx]
-
-        t_utc = tow_to_datetime(gps_week, tow)
-        t_utc = t_utc.replace(tzinfo=timezone.utc)
-        unix_milli = datetime_to_unix_millis(t_utc)
-        unix_millis.append(unix_milli)
-
-    unix_millis = np.squeeze(np.array(unix_millis))
-    return unix_millis
+    pass
 
 
 def tow_to_gps_millis(gps_week, tow):
@@ -429,10 +403,7 @@ def unix_millis_to_tow(unix_millis):
         GPS time of week [s]. Either `float` or `np.ndarray` with
         `dtype = float`.
     """
-
-    t_utc = unix_millis_to_datetime(unix_millis)
-    gps_week, tow = datetime_to_tow(t_utc)
-    return np.int64(gps_week), tow
+    pass
 
 
 def unix_to_gps_millis(unix_millis):

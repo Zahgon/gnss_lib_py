@@ -79,28 +79,7 @@ class AndroidDerived2021(NavData):
         .. [1] https://www.kaggle.com/c/google-smartphone-decimeter-challenge/data
 
         """
-        pr_corrected = self['raw_pr_m'] \
-                     + self['b_sv_m'] \
-                     - self['intersignal_bias_m'] \
-                     - self['tropo_delay_m'] \
-                     - self['iono_delay_m']
-        self['corr_pr_m'] = pr_corrected
-        # rename gnss_id column to constellation type
-        self.replace(CONSTELLATION_ANDROID, rows="gnss_id", inplace=True)
-
-        # rename signal_type column to conform to standard convention
-        signal_map = {"GPS_L1" : "l1",
-                      "GPS_L5" : "l5",
-                      "GAL_E1" : "e1",
-                      "GAL_E5A" : "e5a",
-                      "GLO_G1" : "g1",
-                      "QZS_J1" : "j1",
-                      "QZS_J5" : "j5",
-                      "BDS_B1I" : "b1i",
-                      "BDS_B1C" : "b1c",
-                      "BDS_B2A" : "b2a",
-                     }
-        self.replace(signal_map, rows="signal_type", inplace=True)
+        pass
 
     @staticmethod
     def _row_map():
@@ -111,27 +90,7 @@ class AndroidDerived2021(NavData):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-        row_map = {'collectionName' : 'trace_name',
-                   'phoneName' : 'rx_name',
-                   'millisSinceGpsEpoch' : 'gps_millis',
-                   'constellationType' : 'gnss_id',
-                   'svid' : 'sv_id',
-                   'signalType' : 'signal_type',
-                   'xSatPosM' : 'x_sv_m',
-                   'ySatPosM' : 'y_sv_m',
-                   'zSatPosM' : 'z_sv_m',
-                   'xSatVelMps' : 'vx_sv_mps',
-                   'ySatVelMps' : 'vy_sv_mps',
-                   'zSatVelMps' : 'vz_sv_mps',
-                   'satClkBiasM' : 'b_sv_m',
-                   'satClkDriftMps' : 'b_dot_sv_mps',
-                   'rawPrM' : 'raw_pr_m',
-                   'rawPrUncM' : 'raw_pr_sigma_m',
-                   'isrbM' : 'intersignal_bias_m',
-                   'ionoDelayM' : 'iono_delay_m',
-                   'tropoDelayM' : 'tropo_delay_m',
-                   }
-        return row_map
+        pass
 
 
 class AndroidDerived2022(NavData):
@@ -160,38 +119,7 @@ class AndroidDerived2022(NavData):
         implemented from https://www.kaggle.com/c/google-smartphone-decimeter-challenge/data
         retrieved on 10 August, 2022.
         """
-        pr_corrected = self['raw_pr_m'] \
-                     + self['b_sv_m'] \
-                     - self['intersignal_bias_m'] \
-                     - self['tropo_delay_m'] \
-                     - self['iono_delay_m']
-        self['corr_pr_m'] = pr_corrected
-
-        # rename gnss_id column to constellation type
-        self.replace(CONSTELLATION_ANDROID, rows="gnss_id", inplace=True)
-
-        # rename signal_type column to conform to standard convention
-        signal_map = {"GPS_L1" : "l1",
-                      "GPS_L5" : "l5",
-                      "GAL_E1" : "e1",
-                      "GAL_E5A" : "e5a",
-                      "GLO_G1" : "g1",
-                      "QZS_J1" : "j1",
-                      "QZS_J5" : "j5",
-                      "BDS_B1I" : "b1i",
-                      "BDS_B1C" : "b1c",
-                      "BDS_B2A" : "b2a",
-                     }
-        self.replace(signal_map, rows="signal_type", inplace=True)
-
-        # add gps milliseconds
-        self["gps_millis"] = unix_to_gps_millis(self["unix_millis"])
-
-        # update svn for QZSS constellation
-        if "qzss" in np.unique(self["gnss_id"]):
-            qzss_idxs = self.argwhere("gnss_id","qzss")
-            self["sv_id",qzss_idxs] = [QZSS_PRN_SVN[i] \
-                        for i in self.where("gnss_id","qzss")["sv_id"]]
+        pass
 
 
     def get_state_estimate(self):
@@ -203,30 +131,7 @@ class AndroidDerived2022(NavData):
             Instance of `NavData` containing state estimate rows present
             in the instance of `AndroidDerived2022`.
         """
-
-        rx_rows_to_find = ['x_rx*_m', 'y_rx*_m', 'z_rx*_m',
-                        'vx_rx*_mps', 'vy_rx*_mps', 'vz_rx*_mps',
-                        'b_rx*_m', 'b_dot_rx*_mps']
-        rx_rows_in_measure = ['gps_millis']
-        for row_wildcard in rx_rows_to_find:
-            try:
-                row_map = find_wildcard_indexes(self,row_wildcard, max_allow=1)
-                row = row_map[row_wildcard][0]
-                rx_rows_in_measure.append(row)
-            except KeyError:
-                warnings.warn(f"Row wildcard: {row_wildcard} not found", RuntimeWarning)
-                continue
-
-        state_estimate = NavData()
-        for _, _, measure_frame in loop_time(self,'gps_millis', delta_t_decimals=-2):
-            temp_est = NavData()
-            for row_wildcard in rx_rows_in_measure:
-                temp_est[row_wildcard] = measure_frame[row_wildcard, 0]
-            if len(state_estimate)==0:
-                state_estimate = temp_est
-            else:
-                state_estimate = concat(state_estimate,temp_est)
-        return state_estimate
+        pass
 
     @staticmethod
     def _row_map():
@@ -237,33 +142,7 @@ class AndroidDerived2022(NavData):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-        row_map = {'utcTimeMillis' : 'unix_millis',
-                   'ConstellationType' : 'gnss_id',
-                   'Svid' : 'sv_id',
-                   'SignalType' : 'signal_type',
-                   'SvPositionXEcefMeters' : 'x_sv_m',
-                   'SvPositionYEcefMeters' : 'y_sv_m',
-                   'SvPositionZEcefMeters' : 'z_sv_m',
-                   'SvElevationDegrees' : 'el_sv_deg',
-                   'SvAzimuthDegrees' : 'az_sv_deg',
-                   'SvVelocityXEcefMetersPerSecond' : 'vx_sv_mps',
-                   'SvVelocityYEcefMetersPerSecond' : 'vy_sv_mps',
-                   'SvVelocityZEcefMetersPerSecond' : 'vz_sv_mps',
-                   'SvClockBiasMeters' : 'b_sv_m',
-                   'SvClockDriftMetersPerSecond' : 'b_dot_sv_mps',
-                   'RawPseudorangeMeters' : 'raw_pr_m',
-                   'RawPseudorangeUncertaintyMeters' : 'raw_pr_sigma_m',
-                   'IsrbMeters' : 'intersignal_bias_m',
-                   'IonosphericDelayMeters' : 'iono_delay_m',
-                   'TroposphericDelayMeters' : 'tropo_delay_m',
-                   'Cn0DbHz': 'cn0_dbhz',
-                   'AccumulatedDeltaRangeMeters' : 'accumulated_delta_range_m',
-                   'AccumulatedDeltaRangeUncertaintyMeters': 'accumulated_delta_range_sigma_m',
-                   'WlsPositionXEcefMeters' : 'x_rx_m',
-                   'WlsPositionYEcefMeters' : 'y_rx_m',
-                   'WlsPositionZEcefMeters' : 'z_rx_m',
-                   }
-        return row_map
+        pass
 
 
 class AndroidGroundTruth2021(NavData):
@@ -290,19 +169,7 @@ class AndroidGroundTruth2021(NavData):
         Corrections incorporated from Kaggle notes hosted here:
         https://www.kaggle.com/code/gymf123/tips-notes-from-the-competition-hosts
         """
-        # Correcting reported altitude
-        self['alt_rx_gt_m'] = self['alt_rx_gt_m'] - 61.
-        gt_lla = np.transpose(np.vstack([self['lat_rx_gt_deg'],
-                                         self['lon_rx_gt_deg'],
-                                         self['alt_rx_gt_m']]))
-        gt_ecef = geodetic_to_ecef(gt_lla)
-        self["x_rx_gt_m"] = gt_ecef[:,0]
-        self["y_rx_gt_m"] = gt_ecef[:,1]
-        self["z_rx_gt_m"] = gt_ecef[:,2]
-
-        # convert bearing degrees to heading in radians
-        self["heading_rx_gt_rad"] = np.deg2rad(self["heading_rx_gt_rad"])
-        self["heading_rx_gt_rad"] = wrap_0_to_2pi(self["heading_rx_gt_rad"])
+        pass
 
     @staticmethod
     def _row_map():
@@ -313,14 +180,7 @@ class AndroidGroundTruth2021(NavData):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-        row_map = {'latDeg' : 'lat_rx_gt_deg',
-                   'lngDeg' : 'lon_rx_gt_deg',
-                   'heightAboveWgs84EllipsoidM' : 'alt_rx_gt_m',
-                   'millisSinceGpsEpoch' : 'gps_millis',
-                   'speedMps' : 'v_rx_gt_mps',
-                   'courseDegree' : 'heading_rx_gt_rad',
-                }
-        return row_map
+        pass
 
 
 class AndroidGroundTruth2022(AndroidGroundTruth2021):
@@ -335,23 +195,7 @@ class AndroidGroundTruth2022(AndroidGroundTruth2021):
         Notes
         -----
         """
-        if np.any(np.isnan(self['alt_rx_gt_m'])):
-            warnings.warn("Some altitude values were missing, using 0m ", RuntimeWarning)
-            self['alt_rx_gt_m'] = np.nan_to_num(self['alt_rx_gt_m'])
-        gt_lla = np.transpose(np.vstack([self['lat_rx_gt_deg'],
-                                         self['lon_rx_gt_deg'],
-                                         self['alt_rx_gt_m']]))
-        gt_ecef = geodetic_to_ecef(gt_lla)
-        self["x_rx_gt_m"] = gt_ecef[:,0]
-        self["y_rx_gt_m"] = gt_ecef[:,1]
-        self["z_rx_gt_m"] = gt_ecef[:,2]
-
-        # add gps milliseconds
-        self["gps_millis"] = unix_to_gps_millis(self['unix_millis'])
-
-        # convert bearing degrees to heading in radians
-        self["heading_rx_gt_rad"] = np.deg2rad(self["heading_rx_gt_rad"])
-        self["heading_rx_gt_rad"] = wrap_0_to_2pi(self["heading_rx_gt_rad"])
+        pass
 
     @staticmethod
     def _row_map():
@@ -362,15 +206,7 @@ class AndroidGroundTruth2022(AndroidGroundTruth2021):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-        row_map = {'LatitudeDegrees' : 'lat_rx_gt_deg',
-                   'LongitudeDegrees' : 'lon_rx_gt_deg',
-                   'AltitudeMeters' : 'alt_rx_gt_m',
-                   'SpeedMps' : 'v_rx_gt_mps',
-                   'BearingDegrees' : 'heading_rx_gt_rad',
-                   'UnixTimeMillis' : 'unix_millis',
-
-                }
-        return row_map
+        pass
 
 
 class AndroidDerived2023(AndroidDerived2022):
@@ -419,28 +255,7 @@ def solve_kaggle_baseline(navdata):
         Baseline state estimate.
 
     """
-
-    columns = ["unix_millis",
-               "x_rx_m",
-               "y_rx_m",
-               "z_rx_m",
-               ]
-    navdata.in_rows(columns)
-    data_df = (navdata.pandas_df().drop_duplicates(subset='unix_millis')[columns]
-               .reset_index(drop=True))
-    lat,lon,alt = np.transpose(ecef_to_geodetic(data_df[["x_rx_m",
-                                                         "y_rx_m",
-                                                         "z_rx_m",
-                                                         ]].to_numpy()))
-
-    state_estimate = NavData()
-    state_estimate["gps_millis"] = unix_to_gps_millis(
-                                     data_df["unix_millis"].to_numpy())
-    state_estimate["lat_rx_deg"] = lat
-    state_estimate["lon_rx_deg"] = lon
-    state_estimate["alt_rx_m"] = alt
-
-    return state_estimate
+    pass
 
 def prepare_kaggle_submission(state_estimate, trip_id="trace/phone"):
     """Converts from gnss_lib_py receiver state to Kaggle submission.
@@ -461,21 +276,7 @@ def prepare_kaggle_submission(state_estimate, trip_id="trace/phone"):
         NavData structure ready for Kaggle submission.
 
     """
-
-    state_estimate.in_rows("gps_millis")
-    wildcards = find_wildcard_indexes(state_estimate,["lat_rx*_deg",
-                            "lon_rx*_deg"],max_allow = 1)
-
-    output = NavData()
-    output["tripId"] = np.array([trip_id] * state_estimate.shape[1])
-    output["UnixTimeMillis"] = gps_to_unix_millis(state_estimate["gps_millis"])
-    output.orig_dtypes["UnixTimeMillis"] = np.int64
-    output["LatitudeDegrees"] = state_estimate[wildcards["lat_rx*_deg"]]
-    output["LongitudeDegrees"] = state_estimate[wildcards["lon_rx*_deg"]]
-
-    interpolate(output,"UnixTimeMillis",["LatitudeDegrees",
-                                         "LongitudeDegrees"],inplace=True)
-    return output
+    pass
 
 def solve_kaggle_dataset(folder_path, solver, verbose=False, *args, **kwargs):
     """Run solver on all kaggle traces.
@@ -504,37 +305,4 @@ def solve_kaggle_dataset(folder_path, solver, verbose=False, *args, **kwargs):
         using submission.to_csv().
 
     """
-
-    # create solution NavData object
-    solution = NavData()
-
-    # iterate through all trace options
-    for trace_name in sorted(os.listdir(folder_path)):
-        trace_path = os.path.join(folder_path, trace_name)
-        if not os.path.isdir(trace_path): # pragma: no cover
-            continue
-        # iterate through all phone types
-        for phone_type in sorted(os.listdir(trace_path)):
-            data_path = os.path.join(folder_path,trace_name,
-                                     phone_type,"device_gnss.csv")
-            try:
-                # convert data to Measurement class
-                derived_data = AndroidDerived2022(data_path)
-
-                if verbose:
-                    print("solving:",trace_name,phone_type)
-
-                # compute state estimate using provided solver function
-                state_estimate = solver(derived_data, *args, **kwargs)
-
-                trip_id = "/".join([trace_name,phone_type])
-                output = prepare_kaggle_submission(state_estimate,
-                                                   trip_id)
-
-                # concatenate solution to previous solutions
-                solution = concat(solution, output)
-
-            except FileNotFoundError:
-                continue
-
-    return solution
+    pass

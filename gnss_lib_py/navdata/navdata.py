@@ -100,15 +100,7 @@ class NavData():
             Delimiter to use when reading in csv file.
 
         """
-        if not isinstance(csv_path, (str, os.PathLike)):
-            raise TypeError("csv_path must be string or path-like")
-        if not os.path.exists(csv_path):
-            raise FileNotFoundError(csv_path,"file not found")
-
-        self._build_navdata()
-
-        pandas_df = pd.read_csv(csv_path, **kwargs)
-        self.from_pandas_df(pandas_df)
+        pass
 
     def from_pandas_df(self, pandas_df):
         """Build attributes of NavData using pd.DataFrame.
@@ -118,26 +110,7 @@ class NavData():
         pandas_df : pd.DataFrame
             Data used to initialize NavData instance.
         """
-
-        if not isinstance(pandas_df, pd.DataFrame):
-            raise TypeError("pandas_df must be pd.DataFrame")
-
-        dtypes = dict(pandas_df.dtypes)
-        for row, dtype in dtypes.items():
-            if np.issubdtype(dtype,np.integer):
-                dtype = np.int64
-            self.orig_dtypes[row] = dtype
-
-        if pandas_df.columns.dtype != object:
-            # default headers are Int64 type, but for the NavData
-            # class they need to be strings
-            pandas_df.rename(str, axis="columns", inplace=True)
-
-        self._build_navdata()
-
-        for _, col_name in enumerate(pandas_df.columns):
-            new_value = pandas_df[col_name].to_numpy()
-            self[col_name] = new_value
+        pass
 
     def from_numpy_array(self, numpy_array):
         """Build attributes of NavData using np.ndarray.
@@ -149,15 +122,7 @@ class NavData():
             instance.
 
         """
-
-        if not isinstance(numpy_array, np.ndarray):
-            raise TypeError("numpy_array must be np.ndarray")
-
-        self._build_navdata()
-
-        numpy_array = np.atleast_2d(numpy_array)
-        for row_num in range(numpy_array.shape[0]):
-            self[str(row_num)] = numpy_array[row_num,:]
+        pass
 
     def where(self, key_idx, value, condition="eq"):
         """Return NavData where conditions are met for the given row.
@@ -333,14 +298,7 @@ class NavData():
             True if the row contains string values, False otherwise.
 
         """
-
-        if row_name not in self.map:
-            raise KeyError("'" + str(row_name) \
-                           + "' key doesn't exist in NavData class")
-
-        contains_str = self._row_idx_str_bool[self.map[row_name]]
-
-        return contains_str
+        pass
 
     def rename(self, mapper=None, inplace=False):
         """Rename rows of NavData class.
@@ -365,33 +323,7 @@ class NavData():
             None.
 
         """
-
-        if not isinstance(mapper, dict):
-            raise TypeError("'mapper' must be dict")
-        if not isinstance(inplace, bool):
-            raise TypeError("'inplace' must be bool")
-        for old_name in mapper:
-            if old_name not in self.map:
-                raise KeyError("'" + str(old_name) + "' row name " \
-                             + "doesn't exist in NavData class")
-
-        if not inplace:
-            new_navdata = self.copy()   # create copy to return
-        for old_name, new_name in mapper.items():
-            if not isinstance(new_name, str):
-                raise TypeError("New row names must be strings")
-            if inplace:
-                self.map[new_name] = self.map.pop(old_name)
-                self.str_map[new_name] = self.str_map.pop(old_name)
-                self.orig_dtypes[new_name] = self.orig_dtypes.pop(old_name)
-            else:
-                new_navdata.map[new_name] = new_navdata.map.pop(old_name) # pylint: disable=possibly-used-before-assignment
-                new_navdata.str_map[new_name] = new_navdata.str_map.pop(old_name)
-                new_navdata.orig_dtypes[new_name] = new_navdata.orig_dtypes.pop(old_name)
-
-        if inplace:
-            return None
-        return new_navdata
+        pass
 
     def replace(self, mapper=None, rows=None, inplace=False):
         """Replace data within rows or row names of NavData class.
@@ -654,18 +586,7 @@ class NavData():
             Delimiter string of length 1, defaults to ‘,’
 
         """
-        pd_df = self.pandas_df()
-
-        if output_path is None:
-            # create results folder if it does not yet exist.
-            log_path = os.path.join(os.getcwd(),"results",fo.TIMESTAMP)
-            fo.make_dir(log_path)
-
-            if prefix != "" and not prefix.endswith('_'):
-                prefix += "_"
-            output_path = os.path.join(log_path, prefix + "navdata.csv")
-
-        pd_df.to_csv(output_path, index=index, **kwargs)
+        pass
 
     @property
     def inv_map(self):
@@ -676,8 +597,7 @@ class NavData():
         inv_map: Dict
             Dictionary of row_number : label
         """
-        inv_map = {v: k for k, v in self.map.items()}
-        return inv_map
+        pass
 
     @property
     def shape(self):
@@ -700,8 +620,7 @@ class NavData():
         num_cols : int
             Number of columns in the NavData instance.
         """
-        num_cols = self.shape[1]
-        return num_cols
+        pass
 
     @property
     def rows(self):
@@ -712,8 +631,7 @@ class NavData():
         rows : list
             List of row names in NavData
         """
-        rows = list(self.map.keys())
-        return rows
+        pass
 
     @property
     def _row_idx_str_bool(self):
@@ -727,8 +645,7 @@ class NavData():
         _row_idx_str_bool : Dict
             Dictionary of whether data at row number key is string or not
         """
-        _row_idx_str_bool = {self.map[k]: bool(len(self.str_map[k])) for k in self.str_map}
-        return _row_idx_str_bool
+        pass
 
     def __getitem__(self, key_idx):
         """Return item indexed from class
@@ -952,7 +869,7 @@ class NavData():
         """Build attributes for NavData.
 
         """
-        self.array = np.zeros((0,0), dtype=self.arr_dtype)
+        pass
 
     def _get_str_rows(self, rows):
         """Checks which input rows contain string elements
@@ -1000,27 +917,7 @@ class NavData():
             List of boolean values indicating which of the new rows
             contain strings.
         """
-
-        row_list, row_str_existing = self._get_str_rows(rows)
-
-        if isinstance(new_value, np.ndarray) and (new_value.dtype in (object,str) \
-                        or np.issubdtype(new_value.dtype,np.dtype('U'))):
-            if isinstance(new_value.item(0), (int, float)):
-                row_str_new = [False]*len(row_list)
-            else:
-                row_str_new = [True]*len(row_list)
-        elif isinstance(np.asarray(new_value).item(0), str):
-            raise RuntimeError("Cannot set a row with list of strings, \
-                             please use np.ndarray with dtype=object")
-        else:
-            row_str_new = [False]*len(row_list)
-
-        for row_idx, row in enumerate(row_list):
-            if row_str_existing[row_idx] and not row_str_new[row_idx]:
-                # changed from string to numeric
-                self.str_map[self.inv_map[row]] = {}
-
-        return row_list, row_str_new
+        pass
 
     def _str_2_val(self, new_str_vals, new_value, key):
         """Convert string valued arrays to values for storing in array
@@ -1037,36 +934,7 @@ class NavData():
             Key indicating row where string to numeric conversion is
             required
         """
-        if key in self.map:
-            # Key already exists, update existing string value dictionary
-            inv_str_map = {v: k for k, v in self.str_map[key].items()}
-            string_vals = np.unique(new_value)
-            str_map_dict = self.str_map[key]
-            total_str = len(self.str_map[key])
-            for str_val in string_vals:
-                if str_val not in inv_str_map.keys():
-                    str_map_dict[total_str] = str_val
-                    new_str_vals[new_value==str_val] = total_str
-                    total_str += 1
-                else:
-                    new_str_vals[new_value==str_val] = inv_str_map[str_val]
-            self.str_map[key] = str_map_dict
-        else:
-            string_vals = np.unique(new_value)
-            str_dict = dict(enumerate(string_vals))
-            self.str_map[key] = str_dict
-            new_str_vals = len(string_vals)*np.ones(np.shape(new_value),
-                                                   dtype=self.arr_dtype)
-            # Set unassigned value to int not accessed by string map
-            for str_key, str_val in str_dict.items():
-                if new_str_vals.size == 1:
-                    new_str_vals = np.array(str_key,dtype=self.arr_dtype)
-                else:
-                    new_str_vals[new_value==str_val] = str_key
-            # Copy set to false to prevent memory overflows
-            new_str_vals = np.round(new_str_vals.astype(self.arr_dtype,
-                                                        copy=False))
-        return new_str_vals
+        pass
 
     def _get_strings(self, key):
         """Return list of strings for given key
@@ -1080,12 +948,7 @@ class NavData():
         values_str : np.ndarray
             1D array with string entries corresponding to dataset
         """
-        values_int = self.array[self.map[key],:].astype(int)
-        values_str = values_int.astype(object, copy=True)
-        # True by default but making explicit for clarity
-        for str_key, str_val in self.str_map[key].items():
-            values_str[values_int==str_key] = str_val
-        return values_str
+        pass
 
     def _parse_key_idx(self, key_idx):
         """Break down input queries to relevant row and column indices
@@ -1148,7 +1011,4 @@ class NavData():
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-
-        row_map = {}
-
-        return row_map
+        pass

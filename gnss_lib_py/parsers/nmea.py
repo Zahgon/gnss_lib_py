@@ -169,9 +169,7 @@ class Nmea(NavData):
         """Postprocess loaded NMEA.
 
         """
-
-        # remove data with zero satellite observations
-        self.remove(cols=np.atleast_1d(self.argwhere("num_sats",0)),inplace=True)
+        pass
 
     @staticmethod
     def _row_map():
@@ -182,13 +180,7 @@ class Nmea(NavData):
         row_map : Dict
             Dictionary of the form {old_name : new_name}
         """
-        row_map = {'lat_float' : 'lat_rx_deg',
-                   'lon_float' : 'lon_rx_deg',
-                   'altitude' : 'alt_rx_m',
-                   'spd_over_grnd': 'vx_rx_mps',
-                   'true_course': 'heading_raw_rx_deg',
-                   'true_course_rad' : 'heading_rx_rad'}
-        return row_map
+        pass
 
 
     def include_ecef(self):
@@ -197,10 +189,4 @@ class Nmea(NavData):
         The ECEF coordinates are always added inplace to the same instance
         of Nmea that is input.
         """
-
-        ecef = geodetic_to_ecef(self[['lat_rx_deg',
-                                      'lon_rx_deg',
-                                      'alt_rx_m']])
-        self['x_rx_m'] = ecef[0,:]
-        self['y_rx_m'] = ecef[1,:]
-        self['z_rx_m'] = ecef[2,:]
+        pass

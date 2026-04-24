@@ -149,40 +149,7 @@ def add_sv_states_rinex(measurements, ephemeris_path= DEFAULT_EPHEM_PATH,
     sv_states_all_time : gnss_lib_py.navdata.navdata.NavData
         Input measurements with rows containing SV states appended.
     """
-    measurements_subset, ephem, _ = \
-        _filter_ephemeris_measurements(measurements, constellations, ephemeris_path)
-    sv_states_all_time = NavData()
-    # Loop through the measurement file per time step
-    for _, _, measure_frame in loop_time(measurements_subset,'gps_millis', \
-                                                             delta_t_decimals=delta_t_dec):
-        # Sort the satellites
-        rx_ephem, _, inv_sort_order = _sort_ephem_measures(measure_frame, ephem)
-        if rx_ephem.shape[1] != measure_frame.shape[1]: #pragma: no cover
-            raise RuntimeError('Some ephemeris data is missing')
-        try:
-            # The following statement raises a KeyError if rows don't exist
-            rx_rows_to_find = ['x_rx*_m', 'y_rx*_m', 'z_rx*_m']
-            rx_idxs = find_wildcard_indexes(measure_frame,
-                                                   rx_rows_to_find,
-                                                   max_allow=1)
-            rx_ecef = measure_frame[[rx_idxs["x_rx*_m"][0],
-                                     rx_idxs["y_rx*_m"][0],
-                                     rx_idxs["z_rx*_m"][0]]
-                                     ,0]
-            sv_states, _, _ = find_sv_location(measure_frame['gps_millis'], rx_ecef, rx_ephem)
-        except KeyError:
-            sv_states = find_sv_states(measure_frame['gps_millis'], rx_ephem)
-        # Reverse the sorting
-        sort(sv_states,ind=inv_sort_order,inplace=True)
-        # Add them to new rows
-        for row in sv_states.rows:
-            if row not in ('gps_millis','gnss_id','sv_id'):
-                measure_frame[row] = sv_states[row]
-        if len(sv_states_all_time)==0:
-            sv_states_all_time = measure_frame
-        else:
-            sv_states_all_time = concat(sv_states_all_time, measure_frame)
-    return sv_states_all_time
+    pass
 
 
 def add_visible_svs_for_trajectory(rx_states,
@@ -222,45 +189,7 @@ def add_visible_svs_for_trajectory(rx_states,
 
 
     """
-    # Checks to ensure that the same number of times and states are given
-    gps_millis = rx_states['gps_millis']
-    assert len(gps_millis) == len(rx_states), \
-        "Please give same number of times and ECEF points"
-    assert isinstance(rx_states, NavData), \
-        "rx_states must be a NavData instance"
-
-
-    # Find starting time to download broadcast ephemeris file
-    start_millis = gps_millis[0]
-
-    # Initialize file with broadcast ephemeris parameters
-    rinex_paths = load_ephemeris("rinex_nav",start_millis,constellations,
-                                 download_directory=ephemeris_path,
-                                 )
-    ephem_all_sats = RinexNav(rinex_paths)
-
-    # Find rows that correspond to receiver positions
-    rx_rows_to_find = ['x_rx*_m', 'y_rx*_m', 'z_rx*_m']
-    rx_idxs = find_wildcard_indexes(rx_states,rx_rows_to_find,
-                                              max_allow=1)
-
-    # Loop through all times and positions, estimated SV states and adding
-    # them to a NavData instance that is returned
-    sv_posvel_trajectory = NavData()
-    for idx, milli in enumerate(gps_millis):
-        rx_ecef = rx_states[[rx_idxs["x_rx*_m"][0],
-                                rx_idxs["y_rx*_m"][0],
-                                rx_idxs["z_rx*_m"][0]],
-                                idx]
-        ephem_viz = find_visible_ephem(milli, rx_ecef, ephem_all_sats, el_mask=el_mask)
-        sv_posvel, _, _ = find_sv_location(milli, rx_ecef, ephem_viz)
-        sv_posvel['gps_millis'] = milli
-        if len(sv_posvel_trajectory) == 0:
-            sv_posvel_trajectory = sv_posvel
-        else:
-            sv_posvel_trajectory = concat(sv_posvel_trajectory,sv_posvel)
-
-    return sv_posvel_trajectory
+    pass
 
 def svs_from_el_az(elaz_deg):
     """Generate NED satellite positions for given elevation and azimuth.
@@ -280,15 +209,7 @@ def svs_from_el_az(elaz_deg):
     svs_ned : np.ndarray
         Nx3 satellite NED positions, simulated at a distance of 20,200 km
     """
-    assert np.shape(elaz_deg)[0] == 2, "elaz_deg should be a 2xN array"
-    el_deg = np.deg2rad(elaz_deg[0, :])
-    az_deg = np.deg2rad(elaz_deg[1, :])
-    unit_vect = np.zeros([3, np.shape(elaz_deg)[1]])
-    unit_vect[0, :] = np.sin(az_deg)*np.cos(el_deg)
-    unit_vect[1, :] = np.cos(az_deg)*np.cos(el_deg)
-    unit_vect[2, :] = np.sin(el_deg)
-    svs_ned = 20200000*unit_vect
-    return svs_ned
+    pass
 
 
 def find_sv_states(gps_millis, ephem):

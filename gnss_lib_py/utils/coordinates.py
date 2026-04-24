@@ -223,10 +223,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        init_geodetic = ecef_to_geodetic(init_ecef)
-        local_coord = LocalCoord(init_geodetic, init_ecef)
-        return local_coord
+        pass
 
     def ecef_to_ned(self, ecef):
         """Convert ECEF position vectors to NED position vectors.
@@ -246,16 +243,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        ecef = np.array(ecef)
-        # Convert to column vectors for calculation before returning in the same shape as the input
-        input_shape = ecef.shape
-        if input_shape[0] == 3:
-            ned =  np.matmul(self.ecef_to_ned_matrix, (ecef - np.reshape(self.init_ecef, [3, -1])))
-        elif input_shape[1]==3:
-            ned = np.matmul(self.ecef_to_ned_matrix, (ecef.T - np.reshape(self.init_ecef, [3, -1])))
-            ned = np.transpose(ned)
-        return ned
+        pass
 
     def ecef_to_nedv(self, ecef):
         """Convert ECEF free vectors to NED free vectors.
@@ -275,16 +263,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        ecef = np.array(ecef)
-        # Convert to column vectors for calculation before returning in the same shape as the input
-        input_shape = ecef.shape
-        if input_shape[0] == 3:
-            ned =  np.matmul(self.ecef_to_ned_matrix, ecef)
-        elif input_shape[1]==3:
-            ned = np.matmul(self.ecef_to_ned_matrix, ecef.T)
-            ned = ned.T
-        return ned
+        pass
 
     def ned_to_ecef(self, ned):
         """Convert NED position vectors to ECEF position vectors.
@@ -304,16 +283,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        ned = np.array(ned)
-        # Convert to column vectors for calculation before returning in the same shape as the input
-        input_shape = ned.shape
-        if input_shape[0] == 3:
-            ecef =  np.matmul(self.ned_to_ecef_matrix, ned) + np.reshape(self.init_ecef, [3, -1])
-        elif input_shape[1]==3:
-            ecef = np.matmul(self.ned_to_ecef_matrix, ned.T) + np.reshape(self.init_ecef, [3, -1])
-            ecef = ecef.T
-        return ecef
+        pass
 
     def ned_to_ecefv(self, ned):
         """Convert NED free vectors to ECEF free vectors.
@@ -362,10 +332,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        ecef = geodetic_to_ecef(geodetic)
-        ned = self.ecef_to_ned(ecef)
-        return ned
+        pass
 
     def ned_to_geodetic(self, ned):
         """Convert geodetic position vectors to NED position vectors.
@@ -385,10 +352,7 @@ class LocalCoord(object):
         Based on code from https://github.com/commaai/laika.
 
         """
-
-        ecef = self.ned_to_ecef(ned)
-        geodetic = ecef_to_geodetic(ecef)
-        return geodetic
+        pass
 
 def ecef_to_el_az(rx_pos, sv_pos):
     """Calculate the elevation and azimuth from receiver to satellites.
